@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using todolist.Areas.Identity.Data;
 
 namespace todolist.Models
 {
@@ -21,8 +23,15 @@ namespace todolist.Models
 
         [Required(ErrorMessage = "Please select a status.")]
         public string StatusId { get; set; } = string.Empty;
+
         [ValidateNever]
         public Status Status { get; set; } = null!;
+
+        public string CreatorId { get; set; } = string.Empty;
+
+        [ForeignKey("CreatorId")]
+        [ValidateNever]
+        public ApplicationUser Creator { get; set; } = null!;
 
         public bool Overdue => StatusId == "open" && DueDate < DateTime.Today;
     }

@@ -1,13 +1,28 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 using todolist.Areas.Identity.Data;
 using todolist.Data;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("todoDbContextConnection") ?? throw new InvalidOperationException("Connection string 'todoDbContextConnection' not found.");
 
-builder.Services.AddDbContext<todoDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<todoDbContext>(options => options.UseMySql(
+    connectionString,
+    new MySqlServerVersion(new Version(8, 0, 36)) // adjust version to your MySQL version
+));
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<todoDbContext>();
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<todoDbContext>().AddDefaultTokenProviders();
+builder.Services.AddAuthentication()
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Identity/Account/Login";
+        options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    });
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -29,6 +44,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

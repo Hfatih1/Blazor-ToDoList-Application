@@ -5,6 +5,8 @@
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <form asp-action="Add" method="post">
+    @Html.AntiForgeryToken()
+
     <div class="mb-3">
         <label asp-for="Description" class="form-label">Description</label>
         <input asp-for="Description" class="form-control" />

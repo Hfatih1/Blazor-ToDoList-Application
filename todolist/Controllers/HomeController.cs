@@ -27,13 +27,22 @@ namespace todolist.Controllers
             var filters = new Filters(id);
             ViewBag.Filters = filters;
 
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
             ViewBag.Categories = context.Categories.ToList();
             ViewBag.Statuses = context.Statuses.ToList();
             ViewBag.DueFilters = Filters.DueFilterValues;
 
             IQueryable<ToDo> query = context.ToDos
                 .Include(t => t.Category)
-                .Include(t => t.Status);
+                .Include(t => t.Creator)
+                .Include(t => t.Status)
+                .Where(t => t.CreatorId == userId);
 
             if (filters.HasCategory)
             {
@@ -74,8 +83,26 @@ namespace todolist.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
         public IActionResult Add(ToDo task)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            // Check if user exists
+            var userExists = context.Users.Any(u => u.Id == userId);
+            if (!userExists)
+            {
+                return Unauthorized(); 
+            }
+
+            task.CreatorId = userId;
+
             if (ModelState.IsValid)
             {
                 context.ToDos.Add(task);
@@ -89,7 +116,10 @@ namespace todolist.Controllers
                 return View(task);
             }
         }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Filter(string[] filter)
         {
             string id = string.Join('-', filter);
@@ -97,6 +127,8 @@ namespace todolist.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
             public IActionResult MarkComplete([FromRoute] string id, ToDo selected)
             {
                 selected = context.ToDos.Find(selected.Id)!;
@@ -110,6 +142,8 @@ namespace todolist.Controllers
             }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult DeleteComplete(string id)
         {
             var toDelete = context.ToDos.Where(t => t.StatusId == "closed").ToList();

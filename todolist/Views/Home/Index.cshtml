@@ -37,6 +37,7 @@
                         <th>Category</th>
                         <th>Due Date</th>
                         <th>Status</th>
+                        <th>Creator</th>
                         <th class="w-25"></th>
                     </tr>
                 </thead>
@@ -49,6 +50,7 @@
                             <td>@task.Category.Name</td>
                             <td class="@overdue">@task.DueDate?.ToShortDateString()</td>
                             <td class="@overdue">@task.Status.Name</td>
+                            <td>@task.Creator.Email</td>
                             <td>
                                 @if (task.StatusId == "open")
                                 {
