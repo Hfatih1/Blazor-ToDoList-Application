@@ -14,20 +14,40 @@
 
     <div class="mb-3">
         <label asp-for="CategoryId" class="form-label">Category</label>
-        <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories,"CategoryId", "Name"))">
-            <option value=""></option>
+        <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "CategoryId", "Name"))">
+            <option value="">-- Select Category --</option>
         </select>
     </div>
+
     <div class="mb-3">
         <label asp-for="DueDate" class="form-label">Due Date:</label>
-        <input type="text" asp-for="DueDate" class="form-control"/>
+        <div class="input-group date" id="datepicker-container">
+            <input asp-for="DueDate" type="text" class="form-control" autocomplete="off" />
+            <span class="input-group-text">
+                <i class="bi bi-calendar-event"></i>
+            </span>
+        </div>
     </div>
 
     <div class="mb-3">
         <label asp-for="StatusId" class="form-label">Status:</label>
-        <select asp-for="StatusId" class="form-select" asp-items="@(new SelectList(ViewBag.Statuses,"StatusId", "Name"))">
+        <select asp-for="StatusId" class="form-select" asp-items="@(new SelectList(ViewBag.Statuses, "StatusId", "Name"))">
+            <option value="">-- Select Status --</option>
         </select>
     </div>
+
     <button type="submit" class="btn btn-primary">Add</button>
-    <a asp-action="Index" class="btn btn-primary">Cancel</a>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#datepicker-container input').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+}
